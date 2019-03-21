@@ -1,4 +1,4 @@
-// Define variables.
+// Import plugins
 var autoprefixer = require('autoprefixer');
 var browserSync = require('browser-sync').create();
 var cleancss = require('gulp-clean-css');
@@ -15,12 +15,13 @@ var runSequence = require('run-sequence');
 var sass = require('gulp-ruby-sass');
 var uglify = require('gulp-uglify');
 
-var paths = require('./_assets/paths');
+// Import paths
+var paths = require('./_assets/gulppaths');
 
 // Uses Sass compiler to process styles, adds vendor prefixes, minifies, then
 // outputs file to the appropriate location.
 gulp.task('build:styles:main', function() {
-    return sass(paths.sassFiles + '/main.scss', {
+    return sass(paths.sassFiles + '/styles_main.scss', {
         style: 'compressed',
         trace: true,
         loadPath: [paths.sassFiles]
@@ -34,7 +35,7 @@ gulp.task('build:styles:main', function() {
 
 // Processes critical CSS, to be included in head.html.
 gulp.task('build:styles:critical', function() {
-    return sass(paths.sassFiles + '/critical.scss', {
+    return sass(paths.sassFiles + '/styles_critical.scss', {
         style: 'compressed',
         trace: true,
         loadPath: [paths.sassFiles]
@@ -50,7 +51,7 @@ gulp.task('build:styles', ['build:styles:main', 'build:styles:critical']);
 gulp.task('clean:styles', function(callback) {
     del([paths.jekyllCssFiles,
         paths.siteCssFiles,
-        '_includes/critical.css'
+        '_includes/styles_head.css'
     ]);
     callback();
 });
@@ -80,7 +81,7 @@ gulp.task('build:scripts:body', function() {
   return gulp.src([
       paths.jsFiles + '/body/lib' + paths.jsPattern,
       paths.jsFiles + '/body/lib*.js',
-      paths.jsFiles + '/body/custom.jquery.app.js'
+      paths.jsFiles + '/body/jquery.main.js'
     ])
     .pipe(concat('body.js'))
     .pipe(uglify())
@@ -212,10 +213,10 @@ gulp.task('serve', ['build:local'], function() {
   gulp.watch('_assets/styles/**/*.scss', ['build:styles']);
 
   // Watch .js files.
-  gulp.watch('_assets/js/**/*.js', ['build:scripts:watch']);
+  gulp.watch('_assets/scripts/**/*.js', ['build:scripts:watch']);
 
   // Watch image files; changes are piped to browserSync.
-  gulp.watch('_assets/img/**/*', ['build:images']);
+  gulp.watch('_assets/images/**/*', ['build:images']);
 
   // Watch posts.
   gulp.watch('_posts/**/*.+(md|markdown|MD)', ['build:jekyll:watch']);

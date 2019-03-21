@@ -1,0 +1,14 @@
+.icon {
+	@include hardware-acceleration;
+	display: inline-block;
+	overflow: visible;
+	width: map-get($vgrid_variables, local-lowercase-x-height);
+	height: map-get($vgrid_variables, local-lowercase-x-height);
+	vertical-align: baseline;
+	stroke-width: map-get($vgrid_variables, local-weight) / map-get($vgrid_variables, local-lowercase-x-height);
+	stroke-linecap: butt;
+	pointer-events: none;
+  stroke: inherit;
+	margin-left: map-get($vgrid_variables, local-margin-left) * 0.85;
+	display: inline;
+}

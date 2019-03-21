@@ -1,5 +1,5 @@
-@import 'lib/utility';
-@import 'lib/colors';
+@import 'lib/global_utilities';
+@import 'lib/global_colors';
 
 html {
 	@include fill-fixed;

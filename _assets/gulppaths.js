@@ -1,4 +1,4 @@
-// paths.js file
+// gulppaths.js file
 
 var paths = {};
 
@@ -13,8 +13,8 @@ paths.siteAssetsDir   = '_site/assets/'; // The resulting static site's assets.
 paths.postFolderName   = '_posts';
 paths.draftFolderName  = '_drafts';
 paths.fontFolderName   = 'fonts';
-paths.imageFolderName  = 'img';
-paths.scriptFolderName = 'js';
+paths.imageFolderName  = 'images';
+paths.scriptFolderName = 'scripts';
 paths.stylesFolderName = 'styles';
 
 // Asset files locations.

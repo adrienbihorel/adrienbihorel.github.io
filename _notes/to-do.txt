@@ -1,3 +1,7 @@
+done last time:
+18/12/05
+for figures on projects page, removed margin of 1 vgrid all around: as top and bottom margins of element and as columns gap
+
 known issues:
 - hgrid-collapse creates an overlap of mscroll-groups that is unclickable
 - on some occurrences, clicking of of caption scrolls it to top but doesn't close it

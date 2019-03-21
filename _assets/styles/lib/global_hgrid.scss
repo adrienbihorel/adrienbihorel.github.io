@@ -1,10 +1,11 @@
-$hgrid-count: 16;
-$hgrid-gutter: (vgrid-line(1) + $vgrid-padding)/* * 1 / 1.61803398875*/;
+$hspread: 16;
+// $hgrid-gutter: (vgrid(1) + map-get($vgrid_variables, offset))/* * 1 / 1.61803398875*/;
+$hgrid-gutter: map-get($vgrid_variables, offset)/* * 1 / 1.61803398875*/;
 $hgrid-gutter-rounding-factor: 40; /* to prevent/counterbalance 1px inconsistencies */
 $hgrid-gutter-floored: floor($hgrid-gutter * $hgrid-gutter-rounding-factor) / $hgrid-gutter-rounding-factor;
 $hgrid-gutter-ceiled: ceil($hgrid-gutter * $hgrid-gutter-rounding-factor) / $hgrid-gutter-rounding-factor;
 @function hgrid-calc($n) {
-  @return unquote("(#{$n / $hgrid-count} * (100vw - #{$hgrid-gutter-floored}))"); /* unquote to keep parentheses */
+  @return unquote("(#{$n / $hspread} * (100vw - #{$hgrid-gutter-floored}))"); /* unquote to keep parentheses */
 }
 @mixin hgrid-column($before: 0, $after: 0, $size: 1, $outer-gutter: true) {
   display: inline-block;
@@ -21,7 +22,7 @@ $hgrid-gutter-ceiled: ceil($hgrid-gutter * $hgrid-gutter-rounding-factor) / $hgr
     }
   }
 }
-// $hgrid-col: "(100vw - #{($hgrid-count + 1) * $hgrid-gutter-floored}) / #{$hgrid-count}";
+// $hgrid-col: "(100vw - #{($hspread + 1) * $hgrid-gutter-floored}) / #{$hspread}";
 // @function hgrid-calc($n) {
 //   @return #{$n} * unquote($hgrid-col) + #{($n - 1) * $hgrid-gutter-ceiled};
 // }
@@ -48,7 +49,7 @@ $hgrid-gutter-ceiled: ceil($hgrid-gutter * $hgrid-gutter-rounding-factor) / $hgr
 //     }
 //   }
 // }
-@mixin show-hgrid($c) {
+@mixin hgrid_show($c) {
   &::after {
     content: "";
     position: absolute;

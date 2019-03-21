@@ -15,9 +15,11 @@ plugins:
 
 # Exclude from processing.
 exclude: ["_assets",
+          "_notes",
           "Gemfile",
           "Gemfile.lock",
           "gulpfile.js",
           "node_modules",
           "package.json",
+          "package-lock.json",
           "_DS_Store"]

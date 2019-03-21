@@ -234,7 +234,7 @@ var Dynamic = function() {
               $(image.file).on('load', function() {
                 // console.log('loaded ' + image.file.src + '.');
                 self.imagesLoaded.push(image);
-                self.injectFile(image);
+                // self.injectFile(image);
                 $(image).addClass('loaded');
                 self.updateLoaded();
                 self.options.onLoadNew(self.percentLoaded, function() {
@@ -252,6 +252,7 @@ var Dynamic = function() {
           LoadingTask.prototype.startFileLoad = function(image) {
             // console.log('starting load for: ' + image.file.src + '...');
             image.file.src = $(image).attr('data-src');
+            $(image).attr('src', image.file.src);
             return self;
           };
           LoadingTask.prototype.abortFileLoad = function(image) {
@@ -261,10 +262,10 @@ var Dynamic = function() {
             image.file.remove();
             return self;
           };
-          LoadingTask.prototype.injectFile = function(image) {
-            $(image).attr('src', image.file.src);
-            return self;
-          };
+          // LoadingTask.prototype.injectFile = function(image) {
+          //   $(image).attr('src', image.file.src);
+          //   return self;
+          // };
           LoadingTask.prototype.updateLoaded = function() {
             self.percentLoaded = (self.imagesLoaded.length / self.$imagesTotal.length * 100).toFixed();
             self.$imagesToLoad = self.$imagesTotal.not('.loaded');
@@ -386,6 +387,7 @@ var Dynamic = function() {
     Dynamic.prototype.setMscroll = function() {
       var self = this;
       self.mscrollDir = !self.$mscrollContainer.is('.mscroll-x') ? 'y' : 'x';
+      // self.mscrollLoop = self.$mscrollContainer.is('.mscroll-loop') && !self.app.isIos ? true : false;
       self.mscrollLoop = self.$mscrollContainer.is('.mscroll-loop') && !self.app.isIos ? true : false;
       if (self.mscrollDir === 'x') {
         // self.convertYMscroll();
@@ -465,8 +467,11 @@ var Static = function() {
         currentUrl: self.app.currentUrl,
         $document: self.app.$document, /* for clickCheck to check against */
         getLineHeight: function($listItem) {
-          return $listItem.find('p').height();
-          // return parseFloat($listItem.find('p').css('line-height')) + parseFloat($listItem.find('p').css('padding-top')) + parseFloat($listItem.find('p').css('padding-bottom'));
+          // select the first piece of text you can find
+          var $textElement = $listItem.find('p, h1, h2, h3, h4, h5, h6').eq(0);
+          var lineHeight = $textElement.height();
+          return lineHeight;
+          // RAS here
         },
         onChange: function($element, callback) {
           if (self.app.dynamic.isPreLoading) {
@@ -623,7 +628,7 @@ var App = function() {
       self.dynamic.resize();
     };
     App.prototype.resizeVgrid = function() {
-      var vgridHeight = Math.round(self.windowSurface.mapRange(self.windowRef.minSurface, self.windowRef.maxSurface, 24, 35));
+      var vgridHeight = Math.round(self.windowSurface.mapRange(self.windowRef.minSurface, self.windowRef.maxSurface, 16, 20));
       self.$html.css({
         fontSize: vgridHeight
       });
@@ -912,7 +917,7 @@ $.fn.makeDropdown = function(a) {
           linkSelector: 'a',
           $document: $(document),
           getLineHeight: function($listItem) {
-            return $listItem.height();
+            return $listItem.height() + $listItem.css('padding-top');
           },
           onOpen: function() {},
           onClose: function() {},
@@ -975,7 +980,9 @@ $.fn.makeDropdown = function(a) {
               }
             };
           }
-          var offset = (targetPos - defaultPos) * self.lineHeight;
+          // HERE
+          // WTF IS THIS 1.5
+          var offset = (targetPos - defaultPos) * self.lineHeight * 1.5;
           if (!animation) {
             TweenLite.set($thisListItem, {
               autoAlpha: alpha,
@@ -1187,7 +1194,7 @@ var Icon = function(userOptions) {
   var self = this;
   if (!self.wasInstantiated) {
     self.wasInstantiated = true;
-    Icon.prototype.html = '<svg viewbox="-5 -5 10 10"><line x1="-5" y1="0" x2="5" y2="0"/><line x1="-5" y1="0" x2="5" y2="0"/></svg>';
+    Icon.prototype.html = '<svg viewbox="-0.5 -0.5 1 1"><line x1="-0.5" y1="0" x2="0.5" y2="0"/><line x1="-0.5" y1="0" x2="0.5" y2="0"/></svg>';
     Icon.prototype.initialize = function(userOptions) {
       self.options = $.extend({
         timing: 1,

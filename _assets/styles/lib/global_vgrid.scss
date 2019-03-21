@@ -1,0 +1,129 @@
+$vgrid_settings: (
+  use-lowercase-x: true,
+  base-height: 1rem,
+  base-spread: 2,
+  base-fill: 0.5,
+  base-leading-top: 0,
+  base-leading-bottom: 1,
+  scaling-method: 'factor',
+  scaling-factor: 1.333,
+  visible: false,
+  color: white,
+  font: (
+    name: karmilla,
+    em-to-baseline: 0.1667,
+    em-to-uppercase-x: 0.647,
+    em-to-lowercase-x: 0.647 * 3/4,
+    em-to-weight: 0.11,
+    em-to-margin-left: 0.195
+  )
+);
+
+$vgrid_variables: (
+  fill-reset: if(map-get($vgrid_settings, use-lowercase-x) == false, 1 / map-get(map-get($vgrid_settings, font), em-to-uppercase-x), 1 / map-get(map-get($vgrid_settings, font), em-to-lowercase-x)),
+  grid-height: map-get($vgrid_settings, base-height) / map-get($vgrid_settings, base-spread),
+  base-void: 1 - map-get($vgrid_settings, base-fill),
+  offset: map-get($vgrid_settings, base-height) / map-get($vgrid_settings, base-spread) * map-get($vgrid_settings, base-spread) * map-get($vgrid_settings, base-fill),
+  local-lowercase-x-height: map-get(map-get($vgrid_settings, font), em-to-lowercase-x) * 1em,
+  local-uppercase-x-height: map-get(map-get($vgrid_settings, font), em-to-uppercase-x) * 1em,
+  local-weight: map-get(map-get($vgrid_settings, font), em-to-weight) * 1em,
+  local-margin-left: map-get(map-get($vgrid_settings, font), em-to-margin-left) * 1em
+);
+
+@function vgrid($count) {
+  $height: map-get($vgrid_variables, grid-height) * $count;
+  @return $height;
+}
+
+@mixin vgrid_show {
+  $color-a: transparentize(map-get($vgrid_settings, color), 0.5);
+  $color-b: transparentize(map-get($vgrid_settings, color), 0.8);
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-image: linear-gradient(to top, $color-a 1px, $color-b 1px, $color-b map-get($vgrid_variables, grid-height) * map-get($vgrid_settings, base-fill) * map-get($vgrid_settings, base-spread), transparent 0);
+    // background-image: linear-gradient(to top, transparentize($c, 0.5) 1px, transparent 0);
+    background-size: 100% map-get($vgrid_variables, grid-height);
+    background-position: 0 map-get($vgrid_variables, offset);
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+// SCALING FUNCTIONS
+
+@include plumber-set-defaults(
+  $grid-height: map-get($vgrid_variables, grid-height),
+  $baseline: map-get(map-get($vgrid_settings, font), em-to-baseline),
+  $vgrid_font-size: map-get($vgrid_variables, fill-reset) * map-get($vgrid_settings, base-fill),
+  $line-height: 1,
+  $leading-top: 0,
+  $leading-bottom: 0,
+	$use-baseline-origin: true
+);
+
+@mixin vgrid_free-scale-font($spread, $fill, $lead-top, $lead-bottom) {
+  @include plumber(
+    $line-height: $spread,
+    $font-size: map-get($vgrid_variables, fill-reset) * $spread * $fill,
+    $leading-top: $spread + $lead-top,
+    $leading-bottom: $lead-bottom
+  );
+  $base-fill-height: map-get($vgrid_variables, grid-height) * map-get($vgrid_settings, base-fill);
+  $this-fill-height: map-get($vgrid_variables, grid-height) * $fill * $spread;
+  margin-left: ($base-fill-height - $this-fill-height) * map-get(map-get($vgrid_settings, font), em-to-margin-left);
+}
+
+@mixin vgrid_snap-scale-font($i) {
+  $this-spread: null;
+  $this-fill: null;
+  $this-leading-top: map-get($vgrid_settings, base-leading-top) * $i;
+  $this-leading-bottom: map-get($vgrid_settings, base-leading-bottom) * $i;
+  @if (map-get($vgrid_settings, scaling-method) == 'base-fill') {
+    // top of letter snaps to basefills, +1 every increment
+    $this-spread: map-get($vgrid_settings, base-spread) * $i;
+    $this-fill: 1 - map-get($vgrid_variables, base-void) / $i;
+  }
+  @else if (map-get($vgrid_settings, scaling-method) == 'factor') {
+    // increments fill with a factor. keeps a minimum gap in between fills. still a bit unclear but works as expected
+    // $min-gap: (map-get($vgrid_variables, base-void) + 1) * map-get($vgrid_settings, base-height); /* this variable is unused for now. the idea is to reformulate the function with it so it becomes clearer. */
+    $this-rel-fill: map-get($vgrid_settings, base-fill) * pow(map-get($vgrid_settings, scaling-factor), $i - 1);
+    $this-spread: if($this-rel-fill * map-get($vgrid_variables, grid-height) % map-get($vgrid_variables, grid-height) > map-get($vgrid_settings, base-fill) * map-get($vgrid_variables, grid-height),
+    map-get($vgrid_settings, base-spread) * ceil($this-rel-fill) + 1,
+    map-get($vgrid_settings, base-spread) * ceil($this-rel-fill));
+    $this-fill: map-get($vgrid_settings, base-spread) * $this-rel-fill / $this-spread;
+  }
+  @include vgrid_free-scale-font($this-spread, $this-fill, $this-leading-top, $this-leading-bottom);
+  &::before, &::after {
+    @include vgrid_free-scale-font($this-spread, $this-fill, $this-leading-top, $this-leading-bottom);
+  }
+}
+
+
+// PROCEEEEEEEED
+
+@if (map-get($vgrid_settings, visible) == true) {
+  body {
+    @include vgrid_show;
+  }
+}
+
+@if (map-get($vgrid_settings, use-lowercase-x) == true) {
+  html {
+    text-transform: lowercase;
+  }
+}
+
+p {
+  @include vgrid_snap-scale-font(1);
+}
+
+@for $i from 1 through 6 {
+  h#{$i} {
+    @include vgrid_snap-scale-font($i + 1);
+  }
+}

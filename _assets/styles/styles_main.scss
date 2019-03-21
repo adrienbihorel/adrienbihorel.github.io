@@ -1,20 +1,20 @@
-@import 'lib/ofi';
-@import 'lib/karmilla';
-@import 'lib/utility';
-@import 'lib/colors';
-@import 'lib/vgrid';
-@import 'lib/hgrid';
-@import 'lib/text-decorate';
-@import 'lib/icon';
-@import 'lib/dropdown';
-@import 'lib/slider';
+@import 'lib/plugin_object-fit-images';
+@import 'lib/plugin_plumber';
+@import 'lib/object_karmilla';
+@import 'lib/global_utilities';
+@import 'lib/global_colors';
+@import 'lib/global_vgrid';
+@import 'lib/global_hgrid';
+@import 'lib/object_icon';
+@import 'lib/object_dropdown';
+@import 'lib/object_slider';
 
 $breakpoint-1: 512px;
 $breakpoint-2: 768px;
 
 * {
   @include block-reset;
-  // @include frame(transparentize($c-accent, 0.2));
+  // @include frame(transparentize(orange, 0.4));
 }
 
 a {
@@ -35,6 +35,7 @@ p {
 
 p, h1, h2, h3, h4, h5, h6 {
   hyphens: auto;
+  // @include frame(transparentize($c-accent, 0.2));
   &::after { /* italic overflow fix */
     content: '';
     padding: 0 0.25em;
@@ -55,18 +56,14 @@ html {
     // @include fill-fixed;
     background: $c-background;
     // <- critical
-    // @include show-hgrid($c-accent);
-    // @include show-vgrid($c-accent);
-		font-family: map-get($vgrid-font, name), serif;
+    // @include hgrid_show($c-accent);
+		font-family: map-get(map-get($vgrid_settings, font), name), serif;
 		font-weight: 800;
     font-style: italic;
 		color: $c-font;
     stroke: $c-font;
 		text-rendering: geometricPrecision;
 		-moz-osx-font-smoothing: grayscale;
-    @if ($vgrid-use-lx == true) {
-      text-transform: lowercase;
-    }
 	}
 }
 
@@ -110,8 +107,8 @@ img.cover {
 .viewport {
   position: absolute;
   @include hgrid-column(3, 0, 10);
-  margin-top: calc(#{vgrid-line(5)});
-  height: calc(100% - #{vgrid-line(10)});
+  margin-top: calc(#{vgrid(5)});
+  height: calc(100% - #{vgrid(10)});
   z-index: -1;
 }
 
@@ -126,7 +123,7 @@ img.cover {
   line-height: 0;
   font-size: 0;
   header {
-    margin-top: $vgrid-padding;
+    margin-top: map-get($vgrid_variables, offset);
     white-space: nowrap;
     .loader {
       @include auto-alpha(0);
@@ -137,15 +134,18 @@ img.cover {
         @include hgrid-column(1, 0, 11);
       }
       @media screen and (min-width: $breakpoint-2) {
-        @include hgrid-column(2, 0, 10);
+        @include hgrid-column(1, 0, 11);
       }
       vertical-align: top;
       p {
+        // temporary solutionnnnnnnnn (start)
+        margin-top: vgrid(1);
+        // temporary solutionnnnnnnnn (end)
         span {
           display: inline-block;
-          height: map-get($vgrid-font, em-to-weight) * 1em;
+          height: map-get($vgrid_variables, local-weight);
           width: 100%;
-          margin-bottom: 1 / ($vgrid-fill-reset * $vgrid-fill-adjust) * 1em / 2 - map-get($vgrid-font, em-to-weight) * 1em / 2;
+          margin-bottom: 1em / map-get($vgrid_variables, fill-reset) * 2 - map-get($vgrid_variables, local-weight) / 2;
           vertical-align: baseline;
           background: transparentize($c-font, 0.75);
           span {
@@ -167,8 +167,9 @@ img.cover {
         li {
           p {
             width: 0;
+            // padding-bottom: 0;
             a {
-              // @include text-frame;
+              // @include text-outline;
               box-shadow: none;
               user-select: none;
             }
@@ -178,7 +179,7 @@ img.cover {
     }
   }
   footer {
-    margin-bottom: $vgrid-padding * 2 + vgrid-line(1) * $vgrid-void;
+    margin-bottom: map-get($vgrid_variables, offset) * 2 + vgrid(1) * map-get($vgrid_variables, base-void);
     white-space: nowrap;
     position: absolute;
     top: auto;
@@ -221,13 +222,13 @@ img.cover {
       display: inline-block;
       font-size: 0;
       @media screen and (max-width: $breakpoint-1 - 1) {
-        margin: $vgrid-padding calc(#{hgrid-calc(0)});
+        margin: map-get($vgrid_variables, offset) calc(#{hgrid-calc(0)});
       }
       @media screen and (min-width: $breakpoint-1) {
-        margin: $vgrid-padding calc(#{hgrid-calc(1)});
+        margin: map-get($vgrid_variables, offset) calc(#{hgrid-calc(1)});
       }
       @media screen and (min-width: $breakpoint-2) {
-        margin: $vgrid-padding calc(#{hgrid-calc(2)});
+        margin: map-get($vgrid_variables, offset) calc(#{hgrid-calc(1)});
       }
       float: left; /* added to fix collapsing margins */
     }
@@ -251,7 +252,8 @@ img.cover {
     width: 100%;
     .mscroll-group {
       .mscroll-item {
-        //
+        // latest addition in a hurry... not sure
+        padding: vgrid(7) 0;
       }
     }
     .mscroll-group.clone {
@@ -265,7 +267,7 @@ img.cover {
   .mscroll-area {
     height: 100%;
     .mscroll-group {
-      height: calc(100% - #{$vgrid-padding} * 2);
+      height: calc(100% - #{map-get($vgrid_variables, offset)} * 2);
       white-space: nowrap;
       .mscroll-item {
         white-space: normal;
@@ -292,16 +294,17 @@ img.cover {
     @include hgrid-column(0, 0, 14);
   }
   @media screen and (min-width: $breakpoint-2) {
-    @include hgrid-column(0, 0, 12);
+    @include hgrid-column(0, 0, 14);
   }
   position: relative;
   display: inline-block;
   vertical-align: top;
-  height: calc(100% - 2 * #{$vgrid-gutter});
-  margin-top: $vgrid-gutter;
-  &:last-of-type {
-   margin-bottom: $vgrid-gutter;
-  }
+  height: 100%;
+  // height: calc(100% - 2 * #{vgrid(1)});
+  // margin-top: vgrid(1);
+  // &:last-of-type {
+  //  margin-bottom: vgrid(1);
+  // }
   article {
     @media screen and (max-width: $breakpoint-1 - 1) {
       @include hgrid-column(0, 0, 16, false);
@@ -310,13 +313,19 @@ img.cover {
       @include hgrid-column(2, 0, 10, false);
     }
     @media screen and (min-width: $breakpoint-2) {
-      @include hgrid-column(3, 0, 6, false);
+      @include hgrid-column(4, 0, 6, false);
     }
-    padding-bottom: vgrid-line(2);
-    margin-top: vgrid-line(1);
+    padding-bottom: vgrid(2);
+    margin-top: vgrid(1);
     &:last-of-type {
-     margin-bottom: vgrid-line(1);
+     margin-bottom: vgrid(1);
     }
+    // solution temporaireee (start)
+    a {
+      @include text-underline;
+      // white-space: nowrap;
+    }
+    // solution temporaireee (end)
     // h1, h2, h3, h4, h5, h6 {
     //   text-align: center;
     //   &::after {
@@ -327,6 +336,7 @@ img.cover {
   figure {
     position: relative;
     height: 100%;
+    @include frame(transparentize($c-accent, 0.2));
     figcaption {
       @media screen and (max-width: $breakpoint-1 - 1) {
         @include hgrid-column(1, 0, 14, false);
@@ -338,9 +348,9 @@ img.cover {
         @include hgrid-column(1, 0, 10, false);
       }
       position: absolute;
-      margin-top: - vgrid-line(1);
+      margin-top: - vgrid(1);
       z-index: 2;
-      h1 {
+      h2 {
         height: 0; /* flag: leaves height of plumber padding */
         a {
           user-select: none;
@@ -355,7 +365,9 @@ img.cover {
       height: 100%;
       width: 100%;
       // @include hgrid-collapse();
-      background: transparentize(invert($c-background), 1/3);
+      // background: transparentize($c-font, 1/3);
+      // color: $c-background;
+      background: transparentize($c-background, 1/3);
       z-index: 1;
       article {
         @media screen and (max-width: $breakpoint-1 - 1) { /* override */
@@ -365,11 +377,11 @@ img.cover {
           @include hgrid-column(2, 0, 8, false);
         }
         @media screen and (min-width: $breakpoint-2) { /* override */
-          @include hgrid-column(2, 0, 6, false);
+          @include hgrid-column(3, 0, 6, false);
         }
-        margin-top: vgrid-line(1);
+        margin-top: vgrid(5);
         &:last-of-type {
-         margin-bottom: vgrid-line(1);
+         margin-bottom: vgrid(5);
         }
       }
     }
